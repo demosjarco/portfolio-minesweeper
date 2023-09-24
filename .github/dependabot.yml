@@ -14,13 +14,13 @@ updates:
     ignore:
       # Breaks with asynchronous `useEffect()`
       - dependency-name: '@types/react'
-        versions: '>=16.0.0'
+        versions: '>=17.0.0'
       - dependency-name: '@types/react-dom'
-        versions: '>=16.0.0'
+        versions: '>=17.0.0'
       - dependency-name: 'react'
-        versions: '>=16.0.0'
+        versions: '>=17.0.0'
       - dependency-name: 'react-dom'
-        versions: '>=16.0.0'
+        versions: '>=17.0.0'
       # Breaks font rendering
       - dependency-name: 'styled-components'
         versions: '>=5.0.0'
