@@ -1,0 +1,52 @@
+# This workflow uses actions that are not certified by GitHub. They are provided
+# by a third-party and are governed by separate terms of service, privacy
+# policy, and support documentation.
+
+name: Scorecard supply-chain security
+on:
+  # For Branch-Protection check. Only the default branch is supported. See
+  # https://github.com/ossf/scorecard/blob/main/docs/checks.md#branch-protection
+  branch_protection_rule:
+  # To guarantee Maintained check is occasionally updated. See
+  # https://github.com/ossf/scorecard/blob/main/docs/checks.md#maintained
+  schedule:
+    - cron: '41 21 * * 2'
+  push:
+    branches: ['main']
+
+# Declare default permissions as read only.
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.base_ref || github.ref_name }}
+      # url: ${{ github.server_url }}/${{ github.repository }}/security/code-scanning?query=is%3Aopen+tool%3AScorecard
+      url: https://securityscorecards.dev/viewer/?uri=github.com/${{ github.repository }}
+    permissions:
+      # Needed to upload the results to code-scanning dashboard.
+      security-events: write
+      # Needed to publish results and get a badge (see publish_results below).
+      id-token: write
+      contents: read
+      actions: read
+
+    steps:
+      - uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        with:
+          persist-credentials: false
+      - uses: ossf/scorecard-action@08b4669551908b1024bb425080c797723083c031 # v2.2.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+      # Upload the results to GitHub's code scanning dashboard.
+      - uses: github/codeql-action/upload-sarif@6a28655e3dcb49cb0840ea372fd6d17733edd8a4 # v2.21.8
+        with:
+          sarif_file: results.sarif
